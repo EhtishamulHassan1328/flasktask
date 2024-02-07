@@ -10,6 +10,9 @@ CORS(app)
 # Random API key
 API_KEY = 'ehtisham'
 
+
+session_data = {}
+
 # Home Page Route
 @app.route('/', methods=['GET'])
 def home():
@@ -45,8 +48,6 @@ def add_users_information():
             'gender': request.form['gender']
         }
 
-        session_data = {}
-
         session_data[session_id] = user_info
 
         # Return session ID
@@ -59,16 +60,15 @@ def add_users_information():
 #Get Users Information Route
 @app.route('/getusersinfo', methods=['POST'])
 def getusersinformation():
-    try:
-
-        
-        session_data={}
-        
+    try:        
         if 'api_key' not in request.form:
             return({'error':'API key not found.'}),400
         
         if 'session_id' not in request.form:
             return({'error':'Session Id not found.'}),400
+        
+        if 'api_key' not in request.form:
+            return({'error':'API Key not passed.'}),400
         
         if request.form['api_key']!=API_KEY:
             return({'error':'API key not correct.'}),401

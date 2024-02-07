@@ -15,3 +15,6 @@ Created post method for get users info which will have session_id and api_key as
 Created client1.py file which contain parameters to run this POST request.
 ------------------------
 Added reuirements.txt file using pip freeze > requirements.txt command in the terminal.
+------------------------
+Applied missing checks and done testing with postman api.
+------------------------
