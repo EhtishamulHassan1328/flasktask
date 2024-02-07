@@ -52,6 +52,40 @@ def add_users_information():
         return jsonify({'error': str(e)}), 500
     
 
+#Get Users Information Route
+@app.route('/getusersinfo', methods=['POST'])
+def getusersinformation():
+    try:
+
+        
+        session_data={}
+        
+        if 'api_key' not in request.form:
+            return({'error':'API key not found.'}),400
+        
+        if 'session_id' not in request.form:
+            return({'error':'Session Id not found.'}),400
+        
+        if request.form['api_key']!=API_KEY:
+            return({'error':'API key not correct.'}),401
+        
+        session_id=request.form['session_id']
+
+        
+        if session_id not in session_data:
+            return jsonify({'error': 'Session ID not found.'}), 401
+        
+
+        # Get user information associated with the session ID
+        user_info = session_data[session_id]
+
+        # Return the user information
+        return jsonify({'user_info': user_info}), 200
+
+        
+    except Exception as e:
+        return jsonify({'error':'Exception in this route'}),500
+
 
 if __name__ == "__main__":
     app.run(debug=True)
