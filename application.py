@@ -113,11 +113,22 @@ def addusersgrade():
         if request.form['api_key']!=API_KEY:
             return jsonify({'error':'API key not matched.'}),401
         
+        # Extract form data
+        user_id = request.form.get('user_id')
+        subject = request.form.get('subject')
+        grade = request.form.get('grade')
+
+        # Check if any required field is missing
+        if not user_id or not subject or not grade:
+            return jsonify({'error': 'Some entries are missing.'}), 400
+
+
         grades= SubjectGrade(
-            user_id= request.form['user_id'],
-            subject= request.form['subject'],
-            grade =request.form['grade']
+            user_id= user_id,
+            subject= subject,
+            grade =grade
         )
+
 
         db.session.add(grades)
         db.session.commit()
@@ -127,6 +138,43 @@ def addusersgrade():
     
     except Exception as e:
         return jsonify({'Error: ':str(e)}),400
+    
+
+# Get User Grades Information on the basis of user id.
+@application.route('/getusergrades', methods=['POST'])
+def getgrades():
+    try:
+        if 'api_key' not in request.form:
+            return jsonify({"Error:": 'API_Key not Provided.'}), 401
+        
+        if request.form['api_key'] != API_KEY:
+            return jsonify({"Error:": "API Key not matched."}), 401
+        
+        user_id = request.form.get('user_id')
+        if not user_id:
+            return jsonify({'Error:': 'User Id not provided.'}), 400
+        
+        # Fetch all grades for the specified user_id
+        grades = SubjectGrade.query.filter_by(user_id=user_id).all()
+        
+        if not grades:
+            return jsonify({'Error:': 'No grades found for the specified user.'}), 404
+        
+        # Created a list to store grade information for each entry
+        grade_information = []
+        for grade in grades:
+            grade_info = {
+                'user_id': grade.user_id,
+                'subject': grade.subject,
+                'grade': grade.grade
+            }
+            grade_information.append(grade_info)
+
+        return jsonify({'Grades:': grade_information}), 200
+    
+    except Exception as e:
+        return jsonify({"Error": str(e)}), 500
+
 
 
 if __name__ == "__main__":
