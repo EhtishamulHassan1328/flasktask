@@ -2,10 +2,10 @@ import uuid
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
-app = Flask(__name__)
+application = Flask(__name__)
 
 #Enabling CORS for all routes
-CORS(app)
+CORS(application)
 
 # Random API key
 API_KEY = 'ehtisham'
@@ -14,12 +14,12 @@ API_KEY = 'ehtisham'
 session_data = {}
 
 # Home Page Route
-@app.route('/', methods=['GET'])
+@application.route('/', methods=['GET'])
 def home():
     return "Home route"
 
 # Get users information route
-@app.route('/users', methods=['GET'])
+@application.route('/users', methods=['GET'])
 def get_users_info():
     user_info = {
         'users': [
@@ -33,7 +33,7 @@ def get_users_info():
     return jsonify(user_info)
 
 # Add users information route
-@app.route('/add_usersinfo', methods=['POST'])
+@application.route('/add_usersinfo', methods=['POST'])
 def add_users_information():
     try:
         if 'api_key' not in request.form or request.form['api_key'] != API_KEY:
@@ -58,7 +58,7 @@ def add_users_information():
     
 
 #Get Users Information Route
-@app.route('/getusersinfo', methods=['POST'])
+@application.route('/getusersinfo', methods=['POST'])
 def getusersinformation():
     try:        
         if 'api_key' not in request.form:
@@ -92,4 +92,4 @@ def getusersinformation():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    application.run(debug=True)
