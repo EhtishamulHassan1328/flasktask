@@ -1,6 +1,7 @@
 import uuid
 from flask import Flask, jsonify, request
 from flask_cors import CORS
+from flask_sqlalchemy import SQLAlchemy
 
 application = Flask(__name__)
 
@@ -12,6 +13,27 @@ API_KEY = 'ehtisham'
 
 
 session_data = {}
+
+application.config['SQLALCHEMY_DATABASE_URI']='mysql+pymysql://hassan:pass@localhost/flasktask'
+
+db=SQLAlchemy(application)
+
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100))
+    age = db.Column(db.Integer)
+    gender = db.Column(db.String(10))
+    grades = db.relationship('SubjectGrade', backref='user', lazy=True)
+
+
+class SubjectGrade(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    subject = db.Column(db.String(100))
+    # You can encrypt the grade column here
+    grade = db.Column(db.String(100))
+
 
 # Home Page Route
 @application.route('/', methods=['GET'])
@@ -32,6 +54,7 @@ def get_users_info():
     }
     return jsonify(user_info)
 
+
 # Add users information route
 @application.route('/add_usersinfo', methods=['POST'])
 def add_users_information():
@@ -39,57 +62,46 @@ def add_users_information():
         if 'api_key' not in request.form or request.form['api_key'] != API_KEY:
             return jsonify({'error': 'Api key not matched.'}), 401
 
-        # Generating the session id for the user
-        session_id = str(uuid.uuid4())
+        user = User(
+            name=request.form['name'],
+            age=request.form['age'],
+            gender=request.form['gender']
+        )
+        db.session.add(user)
+        db.session.commit()
+
+        # Return user ID
+        return jsonify({'user_id': user.id}), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+# Get Users Information Route
+@application.route('/getusersinfo', methods=['POST'])
+def get_users_information():
+    try:
+        if 'api_key' not in request.form or request.form['api_key'] != API_KEY:
+            return jsonify({'error': 'API key not correct.'}), 401
+
+        user_id = request.form.get('user_id')
+        if not user_id:
+            return jsonify({'error': 'User ID not provided.'}), 400
+
+        user = User.query.get(user_id)
+        if not user:
+            return jsonify({'error': 'User not found.'}), 404
 
         user_info = {
-            'name': request.form['name'],
-            'age': request.form['age'],
-            'gender': request.form['gender']
+            'name': user.name,
+            'age': user.age,
+            'gender': user.gender
         }
-
-        session_data[session_id] = user_info
-
-        # Return session ID
-        return jsonify({'session_id': session_id}), 200
+        return jsonify({'user_info': user_info}), 200
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     
-
-#Get Users Information Route
-@application.route('/getusersinfo', methods=['POST'])
-def getusersinformation():
-    try:        
-        if 'api_key' not in request.form:
-            return({'error':'API key not found.'}),400
-        
-        if 'session_id' not in request.form:
-            return({'error':'Session Id not found.'}),400
-        
-        if 'api_key' not in request.form:
-            return({'error':'API Key not passed.'}),400
-        
-        if request.form['api_key']!=API_KEY:
-            return({'error':'API key not correct.'}),401
-        
-        session_id=request.form['session_id']
-
-        
-        if session_id not in session_data:
-            return jsonify({'error': 'Session ID not found.'}), 401
-        
-
-        # Get user information associated with the session ID
-        user_info = session_data[session_id]
-
-        # Return the user information
-        return jsonify({'user_info': user_info}), 200
-
-        
-    except Exception as e:
-        return jsonify({'error':'Exception in this route'}),500
-
 
 if __name__ == "__main__":
     application.run(debug=True)
