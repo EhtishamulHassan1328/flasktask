@@ -103,5 +103,31 @@ def get_users_information():
         return jsonify({'error': str(e)}), 500
     
 
+# Add Users Grade
+@application.route("/addusersgrade",methods=['POST'])
+def addusersgrade():
+    try:
+        if 'api_key' not in request.form:
+            return jsonify({'error': 'API key not passed by the user.'}),401
+        
+        if request.form['api_key']!=API_KEY:
+            return jsonify({'error':'API key not matched.'}),401
+        
+        grades= SubjectGrade(
+            user_id= request.form['user_id'],
+            subject= request.form['subject'],
+            grade =request.form['grade']
+        )
+
+        db.session.add(grades)
+        db.session.commit()
+
+        # Return user id
+        return jsonify({'grade_id': grades.id}),200
+    
+    except Exception as e:
+        return jsonify({'Error: ':str(e)}),400
+
+
 if __name__ == "__main__":
     application.run(debug=True)
