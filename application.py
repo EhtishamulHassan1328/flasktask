@@ -186,7 +186,6 @@ def addusersgrade():
         if not user_id or not subject or not grade:
             return jsonify({'error': 'Some entries are missing.'}), 400
 
-
         grades= SubjectGrade(
             user_id= user_id,
             subject= subject,
