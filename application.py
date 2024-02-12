@@ -109,12 +109,23 @@ def add_users_information():
 
         if request.form['api_key']!=API_KEY:
             return jsonify({'error':'API key not matched.'}),401
+        
+        # Extract form data
+        name = request.form.get('name')
+        age = request.form.get('age')
+        gender = request.form.get('gender')
 
-        user = User(
-            name=request.form['name'],
-            age=request.form['age'],
-            gender=request.form['gender']
+        # Check if any required field is missing
+        if not name or not age or not gender:
+            return jsonify({'error': 'Some entries are missing.'}), 400
+
+
+        user= User(
+            name= name,
+            age= age,
+            gender= gender
         )
+        
         db.session.add(user)
         db.session.commit()
 
@@ -229,6 +240,6 @@ def getgrades():
         return jsonify({"Error": str(e)}), 500
 
 
-
+# Main
 if __name__ == "__main__":
     application.run(debug=True)
