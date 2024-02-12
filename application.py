@@ -18,7 +18,7 @@ application.config['SQLALCHEMY_DATABASE_URI']='mysql+pymysql://hassan:pass@local
 
 db=SQLAlchemy(application)
 
-
+# User Table to store user Entries.
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
@@ -27,6 +27,7 @@ class User(db.Model):
     grades = db.relationship('SubjectGrade', backref='user', lazy=True)
 
 
+# Subject Grades Table to store Grade Entries.
 class SubjectGrade(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -34,6 +35,8 @@ class SubjectGrade(db.Model):
     grade = db.Column(db.String(100))
 
 
+# Tried Encryption and Decryption on the Grades element.
+# -------------------------------------------------------
 # encrypted_grade = db.Column(db.LargeBinary)
 
 #     def _init_(self, **kwargs):
@@ -76,6 +79,7 @@ class SubjectGrade(db.Model):
 #     if target._encrypted_grade:
 #         target.grade = target._decrypt_grade()
 
+
 # Home Page Route
 @application.route('/', methods=['GET'])
 def home():
@@ -100,8 +104,11 @@ def get_users_info():
 @application.route('/add_usersinfo', methods=['POST'])
 def add_users_information():
     try:
-        if 'api_key' not in request.form or request.form['api_key'] != API_KEY:
-            return jsonify({'error': 'Api key not matched.'}), 401
+        if 'api_key' not in request.form:
+            return jsonify({'error': 'API key not passed.'}), 401
+
+        if request.form['api_key']!=API_KEY:
+            return jsonify({'error':'API key not matched.'}),401
 
         user = User(
             name=request.form['name'],
@@ -114,6 +121,7 @@ def add_users_information():
         # Return user ID
         return jsonify({'user_id': user.id}), 200
 
+    # Error Returned.
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -122,8 +130,12 @@ def add_users_information():
 @application.route('/getusersinfo', methods=['POST'])
 def get_users_information():
     try:
-        if 'api_key' not in request.form or request.form['api_key'] != API_KEY:
-            return jsonify({'error': 'API key not correct.'}), 401
+        if 'api_key' not in request.form:
+            return jsonify({'error': 'API key not passed.'}), 401
+        
+
+        if request.form['api_key']!=API_KEY:
+            return jsonify({'error':'API key not matched.'}),401
 
         user_id = request.form.get('user_id')
         if not user_id:
