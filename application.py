@@ -31,9 +31,50 @@ class SubjectGrade(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     subject = db.Column(db.String(100))
-    # You can encrypt the grade column here
     grade = db.Column(db.String(100))
 
+
+# encrypted_grade = db.Column(db.LargeBinary)
+
+#     def _init_(self, **kwargs):
+#         super(SubjectGrade, self)._init_(**kwargs)
+#         self._cipher_suite = Fernet(Fernet.generate_key())
+
+
+#     @property
+#     def grade(self):
+#         return self._decrypt_grade()
+
+#     @grade.setter
+#     def grade(self, value):
+#         self.encrypted_grade = self._encrypt_grade(value)
+
+#     def _encrypt_grade(self, grade):
+#         return self._cipher_suite.encrypt(grade.encode())
+
+#     def _decrypt_grade(self):
+#         if self.encrypted_grade:
+#             return self._cipher_suite.decrypt(self.encrypted_grade).decode()
+#         return None
+
+   
+# # Set up event listeners to automatically encrypt and decrypt the grade
+# @event.listens_for(SubjectGrade, 'before_insert')
+# def before_insert(mapper, connection, target):
+#     if target.grade:
+#         target._encrypted_grade = target._encrypt_grade(target.grade)
+
+
+# @event.listens_for(SubjectGrade, 'before_update')
+# def before_update(mapper, connection, target):
+#     if target.grade:
+#         target._encrypted_grade = target._encrypt_grade(target.grade)
+
+
+# @event.listens_for(SubjectGrade, 'load')
+# def on_load(target, context):
+#     if target._encrypted_grade:
+#         target.grade = target._decrypt_grade()
 
 # Home Page Route
 @application.route('/', methods=['GET'])
