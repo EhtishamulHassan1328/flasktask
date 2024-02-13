@@ -19,3 +19,6 @@ Added reuirements.txt file using pip freeze > requirements.txt command in the te
 Applied missing checks and done testing with postman api.
 ------------------------
 Installed pymysql and flask_sqlalchemy library using pip command.
+------------------------
+End
+-----------------------
