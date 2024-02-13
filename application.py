@@ -1,7 +1,7 @@
-import uuid
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-from flask_sqlalchemy import SQLAlchemy
+
+from database import SubjectGrade, User,db
 
 application = Flask(__name__)
 
@@ -11,74 +11,12 @@ CORS(application)
 # Random API key
 API_KEY = 'ehtisham'
 
-
 session_data = {}
 
 application.config['SQLALCHEMY_DATABASE_URI']='mysql+pymysql://hassan:pass@localhost/flasktask'
 
-db=SQLAlchemy(application)
 
-# User Table to store user Entries.
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100))
-    age = db.Column(db.Integer)
-    gender = db.Column(db.String(10))
-    grades = db.relationship('SubjectGrade', backref='user', lazy=True)
-
-
-# Subject Grades Table to store Grade Entries.
-class SubjectGrade(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    subject = db.Column(db.String(100))
-    grade = db.Column(db.String(100))
-
-
-# Tried Encryption and Decryption on the Grades element.
-# -------------------------------------------------------
-# encrypted_grade = db.Column(db.LargeBinary)
-
-#     def _init_(self, **kwargs):
-#         super(SubjectGrade, self)._init_(**kwargs)
-#         self._cipher_suite = Fernet(Fernet.generate_key())
-
-
-#     @property
-#     def grade(self):
-#         return self._decrypt_grade()
-
-#     @grade.setter
-#     def grade(self, value):
-#         self.encrypted_grade = self._encrypt_grade(value)
-
-#     def _encrypt_grade(self, grade):
-#         return self._cipher_suite.encrypt(grade.encode())
-
-#     def _decrypt_grade(self):
-#         if self.encrypted_grade:
-#             return self._cipher_suite.decrypt(self.encrypted_grade).decode()
-#         return None
-
-   
-# # Set up event listeners to automatically encrypt and decrypt the grade
-# @event.listens_for(SubjectGrade, 'before_insert')
-# def before_insert(mapper, connection, target):
-#     if target.grade:
-#         target._encrypted_grade = target._encrypt_grade(target.grade)
-
-
-# @event.listens_for(SubjectGrade, 'before_update')
-# def before_update(mapper, connection, target):
-#     if target.grade:
-#         target._encrypted_grade = target._encrypt_grade(target.grade)
-
-
-# @event.listens_for(SubjectGrade, 'load')
-# def on_load(target, context):
-#     if target._encrypted_grade:
-#         target.grade = target._decrypt_grade()
-
+db.init_app(application)
 
 # Home Page Route
 @application.route('/', methods=['GET'])
@@ -189,7 +127,7 @@ def addusersgrade():
         grades= SubjectGrade(
             user_id= user_id,
             subject= subject,
-            grade =grade
+            grade = grade
         )
 
 
