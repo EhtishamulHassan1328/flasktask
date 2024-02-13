@@ -17,5 +17,6 @@ class SubjectGrade(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     subject = db.Column(db.String(100))
-    grade = db.Column(db.String(100))
+    grade = db.Column(db.String(20480000000000))
+
 

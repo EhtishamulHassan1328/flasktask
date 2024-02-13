@@ -2,6 +2,8 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 
 from database import SubjectGrade, User,db
+from encryption import encrypt_grade, decrypt_grade
+
 
 application = Flask(__name__)
 
@@ -124,10 +126,12 @@ def addusersgrade():
         if not user_id or not subject or not grade:
             return jsonify({'error': 'Some entries are missing.'}), 400
 
+        encryptedgrade = encrypt_grade(grade)
+
         grades= SubjectGrade(
             user_id= user_id,
             subject= subject,
-            grade = grade
+            grade= encryptedgrade
         )
 
 
@@ -135,7 +139,7 @@ def addusersgrade():
         db.session.commit()
 
         # Return user id
-        return jsonify({'grade_id': grades.id}),200
+        return jsonify({'grade_id': grades.id, 'encrypted_grade': encryptedgrade}),200
     
     except Exception as e:
         return jsonify({'Error: ':str(e)}),400
@@ -164,11 +168,15 @@ def getgrades():
         # Created a list to store grade information for each entry
         grade_information = []
         for grade in grades:
+            encrypted_grade = grade.grade  # Assuming 'subject_grade' is an instance of SubjectGrade
+            print(encrypted_grade)
+            decrypted_grade = decrypt_grade(encrypted_grade)
             grade_info = {
                 'user_id': grade.user_id,
                 'subject': grade.subject,
-                'grade': grade.grade
+                'grade': decrypted_grade
             }
+            print(decrypted_grade)
             grade_information.append(grade_info)
 
         return jsonify({'Grades:': grade_information}), 200
